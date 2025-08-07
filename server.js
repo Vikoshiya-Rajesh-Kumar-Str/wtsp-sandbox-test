@@ -27,7 +27,7 @@ app.post('/webhook', async (req, res) => {
   await axios.post(
     `https://api.twilio.com/2010-04-01/Accounts/${process.env.TWILIO_SID}/Messages.json`,
     new URLSearchParams({
-      From: process.env.TWILIO_WHATSAPP_NUMBER ||'whatsapp:+14155238886',
+      From: 'whatsapp:+14155238886',
       To: from,
       Body: reply,
     }),
