@@ -34,36 +34,46 @@ app.post('/webhook', async (req, res) => {
   console.log(`📩 Message from ${from}: ${msgBody}`);
 
   try {
-    let reply;
-
-    // 🧠 Logic for bot replies
-    switch (msgBody.toLowerCase()) {
-      case 'hi':
-        reply = '👋 Hello! Welcome to Ayyanar Rice Store.\n📦 Available Products:\n1. Ponni Rice 25kg\n2. Sona Masoori 10kg\n3. Basmati 5kg\nReply with the number to order.';
-        break;
-      case '1':
-        reply = '✅ Order Confirmed:\nYour order is Ponni Rice 25kg.\nYou will receive your order within 48 hrs.\nThank you for purchasing with us.';
-        break;
-      case '2':
-        reply = '✅ Order Confirmed:\nYour order is Sona Masoori 10kg.\nYou will receive your order within 48 hrs.\nThank you for purchasing with us.';
-        break;
-      case '3':
-        reply = '✅ Order Confirmed:\nYour order is Basmati 5kg.\nYou will receive your order within 48 hrs.\nThank you for purchasing with us.';
-        break;
-      default:
-        reply = '🤖 Sorry, I didn’t understand that. Please type "hi" or "menu".';
+    // If user says "hi", send interactive template
+    if (msgBody.toLowerCase() === 'hi') {
+      await client.messages.create({
+        from: 'whatsapp:+14155238886', // or your Twilio WhatsApp number
+        to: from,
+        contentSid: 'YOUR_TEMPLATE_SID', // <-- replace with your template SID
+        // If your template has variables, add contentVariables here
+      });
+      console.log(`✅ Sent interactive menu to ${from}`);
+    } else if (msgBody === 'Ponni Rice 25kg') {
+      // Handle button reply for Ponni Rice
+      await client.messages.create({
+        from: 'whatsapp:+14155238886',
+        to: from,
+        body: '✅ Order Confirmed:\nYour order is Ponni Rice 25kg.\nYou will receive your order within 48 hrs.\nThank you for purchasing with us.'
+      });
+    } else if (msgBody === 'Sona Masoori 10kg') {
+      // Handle button reply for Sona Masoori
+      await client.messages.create({
+        from: 'whatsapp:+14155238886',
+        to: from,
+        body: '✅ Order Confirmed:\nYour order is Sona Masoori 10kg.\nYou will receive your order within 48 hrs.\nThank you for purchasing with us.'
+      });
+    } else if (msgBody === 'Basmati 5kg') {
+      // Handle button reply for Basmati
+      await client.messages.create({
+        from: 'whatsapp:+14155238886',
+        to: from,
+        body: '✅ Order Confirmed:\nYour order is Basmati 5kg.\nYou will receive your order within 48 hrs.\nThank you for purchasing with us.'
+      });
+    } else {
+      // Fallback
+      await client.messages.create({
+        from: 'whatsapp:+14155238886',
+        to: from,
+        body: '🤖 Sorry, I didn’t understand that. Please type "hi" to see the menu.'
+      });
     }
 
-    // 📤 Send message via Twilio
-    const response = await client.messages.create({
-      body: reply,
-      from: 'whatsapp:+14155238886', 
-      to: from
-    });
-
-    console.log(`✅ Sent reply to ${from}: ${reply}`);
-
-    // 🟢 Send TwiML response to Twilio to acknowledge receipt
+    // Always respond to Twilio webhook
     res.set('Content-Type', 'text/xml');
     res.send('<Response></Response>');
   } catch (error) {
