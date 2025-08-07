@@ -1,56 +1,59 @@
-// server.js
-require('dotenv').config();
 const express = require('express');
+const bodyParser = require('body-parser');
+const dotenv = require('dotenv');
 const twilio = require('twilio');
+
+dotenv.config();
+
 const app = express();
+const port = process.env.PORT || 3000;
 
-const PORT = process.env.PORT || 3000;
+// Parse incoming form-urlencoded requests from Twilio
+app.use(bodyParser.urlencoded({ extended: false }));
 
-// Twilio credentials from environment variables
-const client = twilio(process.env.TWILIO_SID, process.env.TWILIO_AUTH_TOKEN);
+// Twilio client setup
+const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
 
-// Middleware to parse incoming form data (Twilio sends urlencoded)
-app.use(express.urlencoded({ extended: false }));
-app.use(express.json());
-
-// Test route to check server
+// Root route
 app.get('/', (req, res) => {
-  res.send('✅ WhatsApp Bot is Running!');
+  res.send('✅ WhatsApp bot is running...');
 });
 
-// Webhook route to handle incoming WhatsApp messages
+// Webhook route that Twilio hits when a WhatsApp message comes in
 app.post('/webhook', async (req, res) => {
-  const incomingMsg = req.body.Body?.trim().toLowerCase();
+  const msgBody = req.body.Body;
   const from = req.body.From;
 
-  console.log(`Message from ${from}: ${incomingMsg}`);
-
-  let reply = "Sorry, I didn't understand that. Please reply with:\n1. View Products\n2. My Orders\n3. Contact Us";
-
-  if (incomingMsg === 'hi' || incomingMsg === 'hello') {
-    reply = '👋 Welcome to Ayyanar Rice Store!\nReply with:\n1. View Products\n2. My Orders\n3. Contact Us';
-  } else if (incomingMsg === '1') {
-    reply = '🛒 Available Rice Products:\n- Ponni Rice (25kg)\n- Sona Masoori (10kg)\nReply with product name for more.';
-  } else if (incomingMsg === '2') {
-    reply = '📦 You currently have 0 active orders. Please check back later!';
-  } else if (incomingMsg === '3') {
-    reply = '📞 Contact us at: +91 98765 43210\nEmail: support@ayyanarrice.com';
-  }
+  console.log(`📩 Message from ${from}: ${msgBody}`);
 
   try {
-    await client.messages.create({
-      from: 'whatsapp:+14155238886', // Twilio Sandbox number
-      to: from,
-      body: reply
+    let reply;
+
+    // Simple response logic
+    if (msgBody.toLowerCase().includes('hi')) {
+      reply = '👋 Hello! Welcome to Ayyanar Rice Store. Type "menu" to see our products.';
+    } else if (msgBody.toLowerCase().includes('menu')) {
+      reply = '📦 Available Products:\n1. Ponni Rice 25kg\n2. Sona Masoori 10kg\n3. Basmati 5kg\nReply with the number to order.';
+    } else {
+      reply = '🤖 Sorry, I didn’t understand that. Please type "hi" or "menu".';
+    }
+
+    // Send message back via Twilio
+    const message = await client.messages.create({
+      body: reply,
+      from: 'whatsapp:+14155238886', // Twilio sandbox number
+      to: from
     });
+
+    console.log(`✅ Sent reply to ${from}: ${reply}`);
     res.sendStatus(200);
-  } catch (err) {
-    console.error('❌ Error sending message:', err.message);
+  } catch (error) {
+    console.error('❌ Error sending reply:', error);
     res.sendStatus(500);
   }
 });
 
 // Start server
-app.listen(PORT, () => {
-  console.log(`✅ Server running on port ${PORT}`);
+app.listen(port, () => {
+  console.log(`🚀 Server running on port ${port}`);
 });
