@@ -39,7 +39,7 @@ app.post('/webhook', async (req, res) => {
       await client.messages.create({
         from: 'whatsapp:+14155238886', // or your Twilio WhatsApp number
         to: from,
-        contentSid: 'YOUR_TEMPLATE_SID', // <-- replace with your template SID
+        contentSid: 'HXddf4bc621f3010dc5a98a7115e14ddd8', // <-- replace with your template SID
         // If your template has variables, add contentVariables here
       });
       console.log(`✅ Sent interactive menu to ${from}`);
