@@ -38,10 +38,7 @@ app.post('/webhook', async (req, res) => {
     // 🧠 Logic for bot replies
     switch (msgBody.toLowerCase()) {
       case 'hi':
-        reply = '👋 Hello! Welcome to Ayyanar Rice Store. Type "menu" to see our products.';
-        break;
-      case 'menu':
-        reply = '📦 Available Products:\n1. Ponni Rice 25kg\n2. Sona Masoori 10kg\n3. Basmati 5kg\nReply with the number to order.';
+        reply = '👋 Hello! Welcome to Ayyanar Rice Store.\n📦 Available Products:\n1. Ponni Rice 25kg\n2. Sona Masoori 10kg\n3. Basmati 5kg\nReply with the number to order.';
         break;
       case '1':
         reply = '✅ Order Confirmed:\nYour order is Ponni Rice 25kg.\nYou will receive your order within 48 hrs.\nThank you for purchasing with us.';
@@ -59,7 +56,7 @@ app.post('/webhook', async (req, res) => {
     // 📤 Send message via Twilio
     const response = await client.messages.create({
       body: reply,
-      from: 'whatsapp:+14155238886', // Twilio Sandbox number
+      from: 'whatsapp:+14155238886', 
       to: from
     });
 
