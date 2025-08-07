@@ -26,6 +26,7 @@ app.get('/', (req, res) => {
 });
 
 // ✅ Webhook endpoint Twilio will POST to
+// Make sure your Twilio webhook is set to https://<your-domain>/webhook
 app.post('/webhook', async (req, res) => {
   const msgBody = req.body.Body;
   const from = req.body.From;
@@ -61,7 +62,10 @@ app.post('/webhook', async (req, res) => {
     });
 
     console.log(`✅ Sent reply to ${from}: ${reply}`);
-    res.sendStatus(200);
+
+    // 🟢 Send TwiML response to Twilio to acknowledge receipt
+    res.set('Content-Type', 'text/xml');
+    res.send('<Response></Response>');
   } catch (error) {
     console.error('❌ Error sending reply:', error.message);
     res.sendStatus(500);
